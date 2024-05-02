@@ -398,6 +398,7 @@ def install(
     sources=None,
     reinstall=False,
     downloadonly=False,
+    update_holds=False,
     ignore_epoch=False,
     **kwargs,
 ):
@@ -464,6 +465,14 @@ def install(
         .. versionchanged:: 2018.3.0
             version can now contain comparison operators (e.g. ``>1.2.3``,
             ``<=2.0``, etc.)
+
+    update_holds : False
+        If ``True``, and this function would add ``--allow-change-held-packages``
+        to the install command to allow updating held packages. Otherwise, if this
+        function attempts to update a held package, the held package(s) will be
+        skipped and an error will be raised.
+
+        .. versionadded:: 3008.0
 
     reinstall : False
         Specifying reinstall=True will use ``apt-get install --reinstall``
@@ -648,6 +657,8 @@ def install(
             cmd_prefix.append("--install-recommends")
     if "only_upgrade" in kwargs and kwargs["only_upgrade"]:
         cmd_prefix.append("--only-upgrade")
+    if update_holds:
+        cmd_prefix.append("--allow-change-held-packages")
     if skip_verify:
         cmd_prefix.append("--allow-unauthenticated")
     if fromrepo and pkg_type == "repository":
